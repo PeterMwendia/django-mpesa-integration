@@ -6,7 +6,7 @@ from fastapi import FastAPI
 
 from .forms import LoginForm, RegistrationForm
 
-from django.contrib.auth import login, authenticate
+from django.contrib.auth import login, authenticate, logout
 
 mpesa = FastAPI()
 from .callback_db import create_table, populate_table
@@ -78,7 +78,7 @@ def register(request):
             raw_password = form.cleaned_data.get('password1')
             user = authenticate(email=email, password=raw_password)
             login(request, user)
-            return redirect('/')  # Redirect to the desired URL after successful registration
+            return redirect('login')  # Redirect to the desired URL after successful registration
     else:
         form = RegistrationForm()
     return render(request, 'mpesa/register.html', {'form': form})
@@ -96,3 +96,7 @@ def user_login(request):
     else:
         form = LoginForm()
     return render(request, 'mpesa/login.html', {'form': form})
+
+def user_logout(request):
+    logout(request)
+    return redirect('login')  # Redirect to the desired URL after logout
