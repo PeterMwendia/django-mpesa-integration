@@ -1,11 +1,19 @@
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 from django.http import HttpResponse, JsonResponse
 from django_daraja.mpesa.core import MpesaClient
 from fastapi import Request, Path
 from fastapi import FastAPI
+
+from .forms import LoginForm, RegistrationForm
+
+from django.contrib.auth import login, authenticate
+
 mpesa = FastAPI()
 from .callback_db import create_table, populate_table
-from .models import Transaction
+from .models import Transaction, CustomUser
+from django.contrib.auth.decorators import login_required
+
+@login_required
 def index(request):
     cl = MpesaClient()
     # Use a Safaricom phone number that you have access to, for you to be able to view the prompt.
@@ -20,11 +28,14 @@ def index(request):
     response_json = response.json()
     return JsonResponse(response_json)
     
-
+@login_required
 def stk_push_callback(request):
         data = request.body
         
-        return HttpResponse("STK Push in Django👋")
+        return HttpResponse(data)
+        # return HttpResponse("STK Push in Django👋")
+        
+@login_required
 @mpesa.post("/callbackdata")
 async def callback(request: Request):
     json_data = await request.json()
@@ -47,7 +58,41 @@ def express_payment_callback(request):
     return HttpResponse("")
 
 
-
+@login_required
 def transaction_list(request):
     transactions = Transaction.objects.all()
     return render(request, 'mpesa/transactions.html', {'transactions': transactions})
+
+
+@login_required
+def view_all_users(request):
+    users = CustomUser.objects.all()
+    return render(request, 'mpesa/users.html', {'users': users})
+
+def register(request):
+    if request.method == 'POST':
+        form = RegistrationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            email = form.cleaned_data.get('email')
+            raw_password = form.cleaned_data.get('password1')
+            user = authenticate(email=email, password=raw_password)
+            login(request, user)
+            return redirect('/')  # Redirect to the desired URL after successful registration
+    else:
+        form = RegistrationForm()
+    return render(request, 'mpesa/register.html', {'form': form})
+
+def user_login(request):
+    if request.method == 'POST':
+        form = LoginForm(request.POST)
+        if form.is_valid():
+            email = form.cleaned_data.get('email')
+            password = form.cleaned_data.get('password')
+            user = authenticate(email=email, password=password)
+            if user is not None:
+                login(request, user)
+                return redirect('/')  # Redirect to the desired URL after successful login
+    else:
+        form = LoginForm()
+    return render(request, 'mpesa/login.html', {'form': form})
