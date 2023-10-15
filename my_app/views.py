@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponse
 from django_daraja.mpesa.core import MpesaClient
-from fastapi import Request, path
+from fastapi import Request, Path
 
 def index(request):
     cl = MpesaClient()
