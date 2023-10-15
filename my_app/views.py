@@ -1,10 +1,10 @@
 from django.shortcuts import render
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django_daraja.mpesa.core import MpesaClient
 from fastapi import Request, Path
 from fastapi import FastAPI
 mpesa = FastAPI()
-from callback_db import create_table, populate_table
+from .callback_db import create_table, populate_table
 
 def index(request):
     cl = MpesaClient()
@@ -18,7 +18,7 @@ def index(request):
     response = cl.stk_push(phone_number, amount, account_reference, transaction_desc, callback_url)
     # return HttpResponse(response)
     response_json = response.json()
-    return response_json
+    return JsonResponse(response_json)
     
 
 def stk_push_callback(request):
