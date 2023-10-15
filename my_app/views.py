@@ -2,6 +2,9 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from django_daraja.mpesa.core import MpesaClient
 from fastapi import Request, Path
+from fastapi import FastAPI
+mpesa = FastAPI()
+from callback_db import create_table, populate_table
 
 def index(request):
     cl = MpesaClient()
