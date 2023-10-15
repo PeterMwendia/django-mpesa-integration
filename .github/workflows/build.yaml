@@ -1,0 +1,42 @@
+name: Django Build and Run
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.x
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Set up PostgreSQL (if needed)
+      env:
+        POSTGRES_USER: ${{ env.DB_USER }}
+        POSTGRES_PASSWORD: ${{ env.DB_PASSWORD }}
+        POSTGRES_DB: ${{ env.DB_NAME }}
+        POSTGRES_HOST: ${{ env.DB_HOST }}
+        POSTGRES_PORT: ${{ env.DB_PORT }}
+      run: |
+        sudo apt-get install postgresql postgresql-contrib
+        sudo -u postgres psql -c "CREATE USER $POSTGRES_USER WITH PASSWORD '$POSTGRES_PASSWORD';"
+        sudo -u postgres createdb -O $POSTGRES_USER $POSTGRES_DB
+
+    - name: Apply database migrations
+      run: python manage.py migrate
+
+    - name: Run Django server
+      run: python manage.py runserver
