@@ -5,7 +5,7 @@ from fastapi import Request, Path
 from fastapi import FastAPI
 mpesa = FastAPI()
 from .callback_db import create_table, populate_table
-
+from .models import Transaction
 def index(request):
     cl = MpesaClient()
     # Use a Safaricom phone number that you have access to, for you to be able to view the prompt.
@@ -45,3 +45,9 @@ async def callback(request: Request):
 def express_payment_callback(request):
     
     return HttpResponse("")
+
+
+
+def transaction_list(request):
+    transactions = Transaction.objects.all()
+    return render(request, 'mpesa/transactions.html', {'transactions': transactions})
