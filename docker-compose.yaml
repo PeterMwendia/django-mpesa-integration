@@ -6,11 +6,11 @@ services:
     volumes:
       - ./data/db:/var/lib/postgresql/data
     env_file:
-      .env
+      - .env
 
   web:
     build: .
-    command: -c "entrypoint.sh && daphne my_site.asgi:application -b 0.0.0.0 -p 8000"
+    command: bash -c "entrypoint.sh && daphne my_site.asgi:application -b 0.0.0.0 -p 8000"
     volumes:
       - .:/app
     ports:
