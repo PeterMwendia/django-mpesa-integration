@@ -54,4 +54,4 @@ jobs:
     - name: Run Django server
       run: |
         python manage.py collectstatic --no-input
-        python manage.py runserver
+        python manage.py runserver &
