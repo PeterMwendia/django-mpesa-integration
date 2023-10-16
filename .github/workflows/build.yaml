@@ -9,6 +9,17 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    services:
+      postgres:
+        image: postgres-latest
+        env:
+          POSTGRES_USER: ${{ env.DB_USER }}
+          POSTGRES_PASSWORD: ${{ env.DB_PASSWORD }}
+          POSTGRES_DB: ${{ env.DB_NAME }}
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
@@ -23,23 +34,6 @@ jobs:
         python -m pip install --upgrade pip
         pip install wheel pyproject.toml
         pip install -r requirements.txt
-
-    - name: Set up PostgreSQL (if needed)
-      env:
-        POSTGRES_USER: ${{ env.DB_USER }}
-        POSTGRES_PASSWORD: ${{ env.DB_PASSWORD }}
-        POSTGRES_DB: ${{ env.DB_NAME }}
-        POSTGRES_HOST: ${{ env.DB_HOST }}
-        POSTGRES_PORT: ${{ env.DB_PORT }}
-      run: sudo apt-get install postgresql postgresql-contrib
-        
-    - name: Start PostgreSQL service
-      run: sudo service postgresql start
-      
-    - name: create db
-      run: |
-        sudo -u postgres psql -c "ALTER USER $POSTGRES_USER WITH PASSWORD '$POSTGRES_PASSWORD';"
-        sudo -u postgres createdb -O $POSTGRES_USER $POSTGRES_DB
 
     - name: Apply database migrations
       run: |
