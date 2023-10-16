@@ -38,7 +38,7 @@ jobs:
       
     - name: create db
       run: |
-        sudo -u postgres psql -c "CREATE USER $POSTGRES_USER WITH PASSWORD '$POSTGRES_PASSWORD';"
+        sudo -u postgres psql -c "ALTER USER $POSTGRES_USER WITH PASSWORD '$POSTGRES_PASSWORD';"
         sudo -u postgres createdb -O $POSTGRES_USER $POSTGRES_DB
 
     - name: Apply database migrations
