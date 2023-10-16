@@ -31,13 +31,15 @@ jobs:
         POSTGRES_DB: ${{ env.DB_NAME }}
         POSTGRES_HOST: ${{ env.DB_HOST }}
         POSTGRES_PORT: ${{ env.DB_PORT }}
+      run: sudo apt-get install postgresql postgresql-contrib
+        
+    - name: Start PostgreSQL service
+      run: sudo service postgresql start
+      
+    - name: create db
       run: |
-        sudo apt-get update
-        sudo apt-get install -y postgresql postgresql-contrib
-        sudo service postgresql start
         sudo -u postgres psql -c "CREATE USER $POSTGRES_USER WITH PASSWORD '$POSTGRES_PASSWORD';"
         sudo -u postgres createdb -O $POSTGRES_USER $POSTGRES_DB
-    
 
     - name: Apply database migrations
       run: |
